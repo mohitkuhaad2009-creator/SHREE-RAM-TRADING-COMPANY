@@ -4,39 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHREE RAM TRADING COMPANY</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .button {
+            font-size: 18px;
+            padding: 30px 40px;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 180px;
+        }
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .cash-in {
+            background-color: #22c55e;
+        }
+        .cash-in:hover {
+            background-color: #16a34a;
+        }
+        .cash-out {
+            background-color: #ef4444;
+        }
+        .cash-out:hover {
+            background-color: #dc2626;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <header class="bg-blue-600 text-white p-4">
-        <nav class="container mx-auto flex justify-between">
-            <h1 class="text-xl font-bold">SHREE RAM TRADING COMPANY</h1>
-            <ul class="flex space-x-4">
-                <li><a href="#home" class="hover:underline">Home</a></li>
-                <li><a href="#transaction-history" class="hover:underline">Transaction History</a></li>
-                <li><a href="#cash-in-out" class="hover:underline">Cash In/Out</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main class="container mx-auto my-6">
-        <section id="home" class="mb-6">
-            <h2 class="text-2xl font-bold">Home</h2>
-            <p>Welcome to the SHREE RAM TRADING COMPANY. Explore our services and manage your transactions efficiently.</p>
-        </section>
-
-        <section id="transaction-history" class="mb-6">
-            <h2 class="text-2xl font-bold">Transaction History</h2>
-            <p>Your transaction history will appear here.</p>
-        </section>
-
-        <section id="cash-in-out">
-            <h2 class="text-2xl font-bold">Cash In/Out</h2>
-            <p>Details about cash in and cash out transactions will be provided here.</p>
-        </section>
-    </main>
-
-    <footer class="bg-blue-600 text-white text-center p-4">
-        © 2026 SHREE RAM TRADING COMPANY. All rights reserved.
-    </footer>
+<body>
+    <div class="container">
+        <h1>💰 SHREE RAM TRADING COMPANY</h1>
+        
+        <div class="button-container">
+            <button class="button cash-in">➕ CASH IN</button>
+            <button class="button cash-out">➖ CASH OUT</button>
+        </div>
+    </div>
 </body>
 </html>
