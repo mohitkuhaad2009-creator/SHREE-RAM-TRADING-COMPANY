@@ -1,4 +1,46 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashFlow Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="tabs">
+            <button onclick="showPage('home')" id="tab-home" class="active">Home</button>
+            <button onclick="showPage('history')" id="tab-history">History</button>
+        </nav>
+
+        <section id="page-home" class="page">
+            <div class="balance-card">
+                <small>Current Balance</small>
+                <h1 id="balance">₹0.00</h1>
+            </div>
+
+            <div class="input-box">
+                <input type="text" id="description" placeholder="What is this for?">
+                <input type="number" id="amount" placeholder="0.00">
+                <div class="btn-row">
+                    <button class="btn-in" onclick="processTransaction('in')">+ Cash In</button>
+                    <button class="btn-out" onclick="processTransaction('out')">- Cash Out</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-history" class="page hidden">
+            <h3>Transaction Logs</h3>
+            <div id="history-container">
+                <ul id="history-list"></ul>
+            </div>
+            <button class="btn-clear" onclick="clearData()">Delete All Logs</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
