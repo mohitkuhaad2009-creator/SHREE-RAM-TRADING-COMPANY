@@ -493,3 +493,20 @@
     </script>
 </body>
 </html>
+val transactionDetails = """
+    *Transaction Report*
+    --------------------
+    Type: Cash Out
+    Amount: ₹5,000
+    Category: Rent
+    Date: 31 March 2026
+    Note: Paid to landlord
+""".trimIndent()
+
+// Text ko URL format mein convert karna zaroori hai
+val encodedMessage = Uri.encode(transactionDetails)
+val whatsappUrl = "https://wa.me/?text=$encodedMessage"
+
+val intent = Intent(Intent.ACTION_VIEW)
+intent.data = Uri.parse(whatsappUrl)
+startActivity(intent)
