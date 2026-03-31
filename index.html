@@ -493,3 +493,18 @@
     </script>
 </body>
 </html>
+<div class="tracker-container">
+    <h2>Cash Tracker</h2>
+    <div class="input-group">
+        <input type="number" id="amount" placeholder="Amount">
+        <select id="type">
+            <option value="credit">Credit (Cash In)</option>
+            <option value="debit">Debit (Cash Out)</option>
+        </select>
+        <input type="date" id="txn-date">
+        <button onclick="addTransaction()">Add Transaction</button>
+    </div>
+
+    <h3>History</h3>
+    <ul id="history-list"></ul>
+</div>
