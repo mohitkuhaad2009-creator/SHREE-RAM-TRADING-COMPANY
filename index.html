@@ -3,41 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CashFlow Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <title>SHREE RAM TRADING COMPANY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .button {
+            font-size: 18px;
+            padding: 30px 40px;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 180px;
+        }
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .cash-in {
+            background-color: #22c55e;
+        }
+        .cash-in:hover {
+            background-color: #16a34a;
+        }
+        .cash-out {
+            background-color: #ef4444;
+        }
+        .cash-out:hover {
+            background-color: #dc2626;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <nav class="tabs">
-            <button onclick="showPage('home')" id="tab-home" class="active">Home</button>
-            <button onclick="showPage('history')" id="tab-history">History</button>
-        </nav>
-
-        <section id="page-home" class="page">
-            <div class="balance-card">
-                <small>Current Balance</small>
-                <h1 id="balance">₹0.00</h1>
-            </div>
-
-            <div class="input-box">
-                <input type="text" id="description" placeholder="What is this for?">
-                <input type="number" id="amount" placeholder="0.00">
-                <div class="btn-row">
-                    <button class="btn-in" onclick="processTransaction('in')">+ Cash In</button>
-                    <button class="btn-out" onclick="processTransaction('out')">- Cash Out</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="page-history" class="page hidden">
-            <h3>Transaction Logs</h3>
-            <div id="history-container">
-                <ul id="history-list"></ul>
-            </div>
-            <button class="btn-clear" onclick="clearData()">Delete All Logs</button>
-        </section>
+        <h1>💰 SHREE RAM TRADING COMPANY</h1>
+        
+        <div class="button-container">
+            <button class="button cash-in">➕ CASH IN</button>
+            <button class="button cash-out">➖ CASH OUT</button>
+        </div>
     </div>
-
-    <script src="script.js"></script>
 </body>
 </html>
