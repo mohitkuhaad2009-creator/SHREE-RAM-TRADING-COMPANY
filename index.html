@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -41,77 +41,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Cash Tracker</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h2>Cash Tracker</h2>
-        
-        <div class="balance-container">
-            <h4>Your Balance</h4>
-            <h1 id="balance">₹0.00</h1>
-        </div>
-
-        <div class="input-section">
-            <input type="text" id="description" placeholder="Description (e.g., Lunch, Salary)">
-            <input type="number" id="amount" placeholder="Amount">
-            
-            <div class="button-group">
-                <button id="cash-in" onclick="addTransaction('in')">+ Cash In</button>
-                <button id="cash-out" onclick="addTransaction('out')">- Cash Out</button>
-            </div>
-        </div>
-
-        <h3>Transaction History</h3>
-        <ul id="history-list" class="history-list">
-            </ul>
-        
-        <button class="clear-btn" onclick="clearHistory()">Clear All History</button>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
-:root {
-    --green: #27ae60;
-    --red: #e74c3c;
-    --dark: #2c3e50;
-    --light: #ecf0f1;
-}
-
-body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-.container { background: white; width: 380px; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-
-/* Navigation */
-.tabs { display: flex; background: var(--dark); }
-.tabs button { flex: 1; padding: 15px; border: none; background: none; color: #95a5a6; cursor: pointer; font-weight: bold; }
-.tabs button.active { color: white; border-bottom: 3px solid var(--green); }
-
-.page { padding: 20px; }
-.hidden { display: none; }
-
-/* Dashboard Card */
-.balance-card { background: var(--dark); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
-.balance-card h1 { margin: 5px 0; font-size: 2.5rem; }
-
-/* Inputs & Buttons */
-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-.btn-row { display: flex; gap: 10px; margin-top: 10px; }
-button { cursor: pointer; transition: 0.2s; border-radius: 8px; border: none; font-weight: 600; }
-
-.btn-in { background: var(--green); color: white; flex: 1; padding: 15px; }
-.btn-out { background: var(--red); color: white; flex: 1; padding: 15px; }
-.btn-clear { width: 100%; margin-top: 20px; padding: 10px; background: #95a5a6; color: white; }
-
-/* History List */
-#history-list { list-style: none; padding: 0; }
-.item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
-.item-info { display: flex; flex-direction: column; }
-.item-date { font-size: 0.75rem; color: #7f8c8d; }
-.amt-in { color: var(--green); font-weight: bold; }
-.amt-out { color: var(--red); font-weight: bold; }
