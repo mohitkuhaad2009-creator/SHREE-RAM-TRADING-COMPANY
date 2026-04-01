@@ -2,110 +2,162 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>Shri Ram Trading Company - Cash Book</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shri Ram Trading - Cloud Ledger</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 800px; background: white; padding: 20px; margin: auto; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #d32f2f; }
-        .balance-box { display: flex; justify-content: space-around; margin-bottom: 20px; background: #e3f2fd; padding: 15px; border-radius: 5px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { cursor: pointer; background: #2e7d32; color: white; border: none; }
-        button.out { background: #c62828; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .cash-in { color: green; font-weight: bold; }
-        .cash-out { color: red; font-weight: bold; }
+        :root { --primary: #1a237e; --secondary: #2e7d32; --danger: #c62828; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; }
+        .container { max-width: 500px; background: white; padding: 20px; margin: auto; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .balance-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .box { padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .in-box { background: var(--secondary); }
+        .out-box { background: var(--danger); }
+        .net-box { background: var(--primary); grid-column: span 2; font-size: 1.1rem; }
+
+        .form-group { display: flex; flex-direction: column; gap: 10px; background: #fffde7; padding: 15px; border-radius: 10px; border: 1px solid #fbc02d; }
+        input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; outline: none; }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:disabled { background: #999; }
+
+        #status { text-align: center; font-size: 14px; margin: 10px 0; color: #1a237e; font-weight: bold; display: none; }
+        
+        .table-container { margin-top: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; min-width: 400px; }
+        th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; font-size: 14px; }
+        th { background: #f1f1f1; color: var(--primary); }
+        .amt-in { color: var(--secondary); font-weight: bold; }
+        .amt-out { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Shri Ram Trading Company</h2>
-    
-    <div class="balance-box">
-        <div><strong>Total Cash In:</strong> ₹<span id="totalIn">0</span></div>
-        <div><strong>Total Cash Out:</strong> ₹<span id="totalOut">0</span></div>
-        <div><strong>Net Balance:</strong> ₹<span id="netBalance">0</span></div>
+    <h2>Shri Ram Trading Co.</h2>
+
+    <div class="balance-card">
+        <div class="box in-box">In: ₹<span id="tIn">0</span></div>
+        <div class="box out-box">Out: ₹<span id="tOut">0</span></div>
+        <div class="box net-box">Net Balance: ₹<span id="tNet">0</span></div>
     </div>
 
-    <div class="input-group">
+    <div class="form-group">
         <input type="date" id="date">
-        <input type="text" id="desc" placeholder="Details (Kahan se aaya/gaya)">
+        <input type="text" id="desc" placeholder="Details (Kise diya/Kahan se aaya)">
         <input type="number" id="amount" placeholder="Amount (₹)">
         <select id="type">
             <option value="in">Cash In (+)</option>
             <option value="out">Cash Out (-)</option>
         </select>
-        <button onclick="addEntry()">Entry Save Karein</button>
+        <button id="saveBtn" onclick="saveToSheet()">Save Entry</button>
     </div>
 
-    <h3>Transaction History</h3>
-    <table id="historyTable">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            </tbody>
-    </table>
-    <br>
-    <button onclick="clearData()" style="background: gray;">Clear All History</button>
+    <div id="status">Syncing with Google Sheets...</div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Details</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="logTable"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    let entries = JSON.parse(localStorage.getItem('cashData')) || [];
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz40Wjy-WphlcFwjSQTUFVZsJA_iuDoMqJn_iSHAeQUTFv_o-noNsz0iXTcrR3qX_HK/exec';
 
-    function updateUI() {
-        const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '';
-        let tIn = 0; let tOut = 0;
+    // 1. Load Data from Google Sheets
+    async function loadData() {
+        const status = document.getElementById('status');
+        status.style.display = 'block';
+        status.innerText = "Data load ho raha hai...";
+        
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            renderTable(data);
+            status.style.display = 'none';
+        } catch (e) {
+            status.innerText = "Error: Data load nahi hua. Check Permissions.";
+        }
+    }
 
-        entries.forEach((item, index) => {
+    // 2. Show Data in Table
+    function renderTable(data) {
+        const table = document.getElementById('logTable');
+        table.innerHTML = '';
+        let totalIn = 0, totalOut = 0;
+
+        // Sort: Newest first
+        data.reverse().forEach(item => {
+            let val = parseFloat(item.amount) || 0;
+            let isIn = item.type === 'in';
+            
             let row = `<tr>
                 <td>${item.date}</td>
                 <td>${item.desc}</td>
-                <td class="${item.type === 'in' ? 'cash-in' : 'cash-out'}">${item.type.toUpperCase()}</td>
-                <td>₹${item.amount}</td>
+                <td class="${isIn ? 'amt-in' : 'amt-out'}">${isIn ? '+' : '-'}${val}</td>
             </tr>`;
-            tableBody.innerHTML += row;
+            table.innerHTML += row;
 
-            if(item.type === 'in') tIn += parseFloat(item.amount);
-            else tOut += parseFloat(item.amount);
+            if(isIn) totalIn += val; else totalOut += val;
         });
 
-        document.getElementById('totalIn').innerText = tIn;
-        document.getElementById('totalOut').innerText = tOut;
-        document.getElementById('netBalance').innerText = tIn - tOut;
+        document.getElementById('tIn').innerText = totalIn.toLocaleString('en-IN');
+        document.getElementById('tOut').innerText = totalOut.toLocaleString('en-IN');
+        document.getElementById('tNet').innerText = (totalIn - totalOut).toLocaleString('en-IN');
     }
 
-    function addEntry() {
+    // 3. Save Entry to Google Sheets
+    async function saveToSheet() {
         const date = document.getElementById('date').value;
         const desc = document.getElementById('desc').value;
         const amount = document.getElementById('amount').value;
         const type = document.getElementById('type').value;
+        const btn = document.getElementById('saveBtn');
 
-        if(!date || !desc || !amount) { alert("Please fill all fields"); return; }
+        if(!date || !desc || !amount) return alert("Sari jankari bharein!");
 
-        entries.push({ date, desc, amount, type });
-        localStorage.setItem('cashData', JSON.stringify(entries));
-        updateUI();
-    }
+        btn.disabled = true;
+        document.getElementById('status').style.display = 'block';
+        document.getElementById('status').innerText = "Saving to Google Sheet...";
 
-    function clearData() {
-        if(confirm("Kya aap saari history delete karna chahte hain?")) {
-            localStorage.clear();
-            entries = [];
-            updateUI();
+        const payload = JSON.stringify({ date, desc, amount, type });
+
+        try {
+            // Apps Script requires 'no-cors' for simple POST from different domains
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload
+            });
+
+            // Since 'no-cors' doesn't return a readable response, we wait 2 seconds then reload
+            setTimeout(() => {
+                document.getElementById('desc').value = '';
+                document.getElementById('amount').value = '';
+                loadData();
+                btn.disabled = false;
+                alert("Entry Saved Successfully!");
+            }, 2000);
+
+        } catch (e) {
+            alert("Error saving data!");
+            btn.disabled = false;
         }
     }
 
-    updateUI(); // Load data on start
+    // Initial Load
+    document.getElementById('date').valueAsDate = new Date();
+    loadData();
 </script>
 
 </body>
