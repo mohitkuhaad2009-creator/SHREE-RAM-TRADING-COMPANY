@@ -1,495 +1,112 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CashTracker - SHREE RAM TRADING COMPANY</title>
+    <title>Shri Ram Trading Company - Cash Book</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            max-width: 900px;
-            width: 100%;
-        }
-        h1 { color: #333; font-size: 32px; text-align: center; margin-bottom: 10px; }
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-        .nav-btn {
-            padding: 12px 25px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .nav-btn.active {
-            background: #667eea;
-            color: white;
-        }
-        .page { display: none; }
-        .page.active { display: block; }
-        
-        .balance-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .balance-amount { font-size: 48px; font-weight: bold; }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .stat-box {
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-            text-align: center;
-        }
-        .stat-box.income {
-            background: #f0fdf4;
-            border-color: #22c55e;
-        }
-        .stat-box.expense {
-            background: #fef2f2;
-            border-color: #ef4444;
-        }
-        .stat-amount {
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .stat-box.income .stat-amount { color: #22c55e; }
-        .stat-box.expense .stat-amount { color: #ef4444; }
-
-        .button-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .button {
-            font-size: 18px;
-            padding: 35px 45px;
-            border: none;
-            cursor: pointer;
-            border-radius: 12px;
-            font-weight: bold;
-            color: white;
-            transition: all 0.3s;
-            min-width: 180px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 25px rgba(0,0,0,0.3);
-        }
-        .cash-in {
-            background-color: #22c55e;
-            font-size: 20px;
-        }
-        .cash-in:hover { background-color: #16a34a; }
-        .cash-out {
-            background-color: #ef4444;
-            font-size: 20px;
-        }
-        .cash-out:hover { background-color: #dc2626; }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .type-selector {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            justify-content: center;
-        }
-        .type-btn {
-            flex: 1;
-            max-width: 200px;
-            padding: 20px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        .type-btn.cash-in { color: #22c55e; border-color: #22c55e; }
-        .type-btn.cash-in.selected { background: #22c55e; color: white; }
-        .type-btn.cash-out { color: #ef4444; border-color: #ef4444; }
-        .type-btn.cash-out.selected { background: #ef4444; color: white; }
-
-        .submit-btn {
-            width: 100%;
-            padding: 16px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .submit-btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-        }
-
-        .filter-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .transaction-list {
-            max-height: 500px;
-            overflow-y: auto;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 0;
-            background: #f9f9f9;
-        }
-        .transaction-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-        }
-        .transaction-amount {
-            font-weight: bold;
-            font-size: 18px;
-            margin-right: 10px;
-        }
-        .transaction-amount.income { color: #22c55e; }
-        .transaction-amount.expense { color: #ef4444; }
-
-        .delete-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .delete-btn:hover { background: #dc2626; }
-
-        .empty-message {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        .success-message {
-            padding: 15px;
-            background: #f0fdf4;
-            border: 2px solid #22c55e;
-            color: #22c55e;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 800px; background: white; padding: 20px; margin: auto; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #d32f2f; }
+        .balance-box { display: flex; justify-content: space-around; margin-bottom: 20px; background: #e3f2fd; padding: 15px; border-radius: 5px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { cursor: pointer; background: #2e7d32; color: white; border: none; }
+        button.out { background: #c62828; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .cash-in { color: green; font-weight: bold; }
+        .cash-out { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>💰 CashTracker - SHREE RAM TRADING COMPANY</h1>
 
-        <div class="nav-buttons">
-            <button class="nav-btn active" onclick="showHome()">🏠 Home</button>
-            <button class="nav-btn" onclick="showTransaction()">💳 Add Cash</button>
-            <button class="nav-btn" onclick="showHistory()">📋 History</button>
-        </div>
-
-        <!-- HOME PAGE -->
-        <div id="home" class="page active">
-            <div class="balance-box">
-                <div style="font-size: 14px; opacity: 0.9;">💰 Total Balance</div>
-                <div class="balance-amount" id="homeBalance">$0.00</div>
-            </div>
-
-            <div class="stats">
-                <div class="stat-box income">
-                    <div style="font-size: 12px; margin-bottom: 8px; font-weight: bold;">📈 Total Income</div>
-                    <div class="stat-amount" id="homeIncome">$0.00</div>
-                </div>
-                <div class="stat-box expense">
-                    <div style="font-size: 12px; margin-bottom: 8px; font-weight: bold;">📉 Total Expense</div>
-                    <div class="stat-amount" id="homeExpense">$0.00</div>
-                </div>
-            </div>
-
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">Quick Actions:</p>
-
-            <div class="button-container">
-                <button class="button cash-in" onclick="doCashIn()">➕ CASH IN</button>
-                <button class="button cash-out" onclick="doCashOut()">➖ CASH OUT</button>
-            </div>
-        </div>
-
-        <!-- ADD CASH PAGE -->
-        <div id="transaction" class="page">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">💳 Add Transaction</h2>
-            
-            <form id="form" onsubmit="handleAddTransaction(event)">
-                <div class="form-group">
-                    <label>📝 Description:</label>
-                    <input type="text" id="desc" placeholder="What is this for?" required>
-                </div>
-
-                <div class="form-group">
-                    <label>💵 Amount ($):</label>
-                    <input type="number" id="amt" placeholder="0.00" step="0.01" min="0" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Type:</label>
-                    <div class="type-selector">
-                        <button type="button" class="type-btn cash-in selected" id="btnIn" onclick="setIncome()">➕ CASH IN</button>
-                        <button type="button" class="type-btn cash-out" id="btnOut" onclick="setExpense()">➖ CASH OUT</button>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn">✅ Add Transaction</button>
-            </form>
-
-            <div id="msg" style="margin-top: 20px;"></div>
-        </div>
-
-        <!-- HISTORY PAGE -->
-        <div id="history" class="page">
-            <h2 style="text-align: center; margin-bottom: 20px; color: #333;">📋 Transaction History</h2>
-            
-            <div class="filter-container">
-                <button class="filter-btn active" onclick="showAll(this)">All</button>
-                <button class="filter-btn" onclick="showIncome(this)">➕ Income</button>
-                <button class="filter-btn" onclick="showExpense(this)">➖ Expense</button>
-            </div>
-            
-            <div class="transaction-list" id="list">
-                <div class="empty-message">No transactions yet</div>
-            </div>
-
-            <button id="clearBtn" class="submit-btn" style="margin-top: 20px; background: #ef4444; display: none;" onclick="clearAll()">
-                🗑️ Clear All
-            </button>
-        </div>
+<div class="container">
+    <h2>Shri Ram Trading Company</h2>
+    
+    <div class="balance-box">
+        <div><strong>Total Cash In:</strong> ₹<span id="totalIn">0</span></div>
+        <div><strong>Total Cash Out:</strong> ₹<span id="totalOut">0</span></div>
+        <div><strong>Net Balance:</strong> ₹<span id="netBalance">0</span></div>
     </div>
 
-    <script>
-        let type = 'income';
-        let transactions = JSON.parse(localStorage.getItem('trans')) || [];
-        let filter = 'all';
+    <div class="input-group">
+        <input type="date" id="date">
+        <input type="text" id="desc" placeholder="Details (Kahan se aaya/gaya)">
+        <input type="number" id="amount" placeholder="Amount (₹)">
+        <select id="type">
+            <option value="in">Cash In (+)</option>
+            <option value="out">Cash Out (-)</option>
+        </select>
+        <button onclick="addEntry()">Entry Save Karein</button>
+    </div>
 
-        function showHome() {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('home').classList.add('active');
-            updateHome();
+    <h3>Transaction History</h3>
+    <table id="historyTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+    <br>
+    <button onclick="clearData()" style="background: gray;">Clear All History</button>
+</div>
+
+<script>
+    let entries = JSON.parse(localStorage.getItem('cashData')) || [];
+
+    function updateUI() {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        let tIn = 0; let tOut = 0;
+
+        entries.forEach((item, index) => {
+            let row = `<tr>
+                <td>${item.date}</td>
+                <td>${item.desc}</td>
+                <td class="${item.type === 'in' ? 'cash-in' : 'cash-out'}">${item.type.toUpperCase()}</td>
+                <td>₹${item.amount}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+
+            if(item.type === 'in') tIn += parseFloat(item.amount);
+            else tOut += parseFloat(item.amount);
+        });
+
+        document.getElementById('totalIn').innerText = tIn;
+        document.getElementById('totalOut').innerText = tOut;
+        document.getElementById('netBalance').innerText = tIn - tOut;
+    }
+
+    function addEntry() {
+        const date = document.getElementById('date').value;
+        const desc = document.getElementById('desc').value;
+        const amount = document.getElementById('amount').value;
+        const type = document.getElementById('type').value;
+
+        if(!date || !desc || !amount) { alert("Please fill all fields"); return; }
+
+        entries.push({ date, desc, amount, type });
+        localStorage.setItem('cashData', JSON.stringify(entries));
+        updateUI();
+    }
+
+    function clearData() {
+        if(confirm("Kya aap saari history delete karna chahte hain?")) {
+            localStorage.clear();
+            entries = [];
+            updateUI();
         }
+    }
 
-        function showTransaction() {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('transaction').classList.add('active');
-        }
+    updateUI(); // Load data on start
+</script>
 
-        function showHistory() {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('history').classList.add('active');
-            updateList();
-        }
-
-        function doCashIn() {
-            type = 'income';
-            setIncome();
-            showTransaction();
-        }
-
-        function doCashOut() {
-            type = 'expense';
-            setExpense();
-            showTransaction();
-        }
-
-        function setIncome() {
-            type = 'income';
-            document.getElementById('btnIn').classList.add('selected');
-            document.getElementById('btnOut').classList.remove('selected');
-        }
-
-        function setExpense() {
-            type = 'expense';
-            document.getElementById('btnOut').classList.add('selected');
-            document.getElementById('btnIn').classList.remove('selected');
-        }
-
-        function handleAddTransaction(e) {
-            e.preventDefault();
-            const desc = document.getElementById('desc').value;
-            const amt = parseFloat(document.getElementById('amt').value);
-
-            transactions.push({
-                id: Date.now(),
-                type: type,
-                desc: desc,
-                amt: amt,
-                date: new Date().toLocaleString()
-            });
-
-            localStorage.setItem('trans', JSON.stringify(transactions));
-            document.getElementById('msg').innerHTML = `<div class="success-message">✅ Added ${amt > 0 ? '$' + amt : ''}</div>`;
-            document.getElementById('form').reset();
-            
-            setTimeout(() => {
-                document.getElementById('msg').innerHTML = '';
-            }, 2000);
-
-            updateHome();
-        }
-
-        function updateHome() {
-            let inc = 0, exp = 0;
-            transactions.forEach(t => {
-                if (t.type === 'income') inc += t.amt;
-                else exp += t.amt;
-            });
-            document.getElementById('homeBalance').textContent = '$' + (inc - exp).toFixed(2);
-            document.getElementById('homeIncome').textContent = '$' + inc.toFixed(2);
-            document.getElementById('homeExpense').textContent = '$' + exp.toFixed(2);
-        }
-
-        function updateList() {
-            let show = transactions;
-            if (filter === 'income') show = transactions.filter(t => t.type === 'income');
-            else if (filter === 'expense') show = transactions.filter(t => t.type === 'expense');
-
-            const list = document.getElementById('list');
-            if (show.length === 0) {
-                list.innerHTML = '<div class="empty-message">No transactions</div>';
-                document.getElementById('clearBtn').style.display = 'none';
-                return;
-            }
-
-            list.innerHTML = show.map(t => `
-                <div class="transaction-item">
-                    <div>
-                        <strong>${t.type === 'income' ? '➕' : '➖'} ${t.desc}</strong><br>
-                        <small style="color: #999;">${t.date}</small>
-                    </div>
-                    <div>
-                        <span class="transaction-amount ${t.type}">${t.type === 'income' ? '+' : '-'}$${t.amt.toFixed(2)}</span>
-                        <button class="delete-btn" onclick="del(${t.id})">X</button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('clearBtn').style.display = 'block';
-        }
-
-        function del(id) {
-            transactions = transactions.filter(t => t.id !== id);
-            localStorage.setItem('trans', JSON.stringify(transactions));
-            updateList();
-            updateHome();
-        }
-
-        function clearAll() {
-            if (confirm('Delete all?')) {
-                transactions = [];
-                localStorage.setItem('trans', JSON.stringify(transactions));
-                updateList();
-                updateHome();
-            }
-        }
-
-        function showAll(btn) {
-            filter = 'all';
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateList();
-        }
-
-        function showIncome(btn) {
-            filter = 'income';
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateList();
-        }
-
-        function showExpense(btn) {
-            filter = 'expense';
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateList();
-        }
-
-        updateHome();
-    </script>
 </body>
 </html>
