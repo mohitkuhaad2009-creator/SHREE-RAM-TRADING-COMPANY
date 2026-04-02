@@ -1,4 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h3>Data Filter Karo</h3>
+    <input type="text" id="searchInput" placeholder="Naam likho...">
+    <button onclick="filter()">Search</button>
+    
+    <div id="displayTable" style="margin-top: 20px;"></div>
 
+    <script>
+      function filter() {
+        var val = document.getElementById("searchInput").value;
+        google.script.run.withSuccessHandler(showTable).searchData(val);
+      }
+
+      function showTable(data) {
+        if(data.length <= 1) {
+          document.getElementById("displayTable").innerHTML = "Koi data nahi miliya.";
+          return;
+        }
+        var table = "<table border='1'>";
+        for(var i=0; i<data.length; i++) {
+          table += "<tr>";
+          for(var j=0; j<data[i].length; j++) {
+            table += "<td>" + data[i][j] + "</td>";
+          }
+          table += "</tr>";
+        }
+        table += "</table>";
+        document.getElementById("displayTable").innerHTML = table;
+      }
+    </script>
+  </body>
+</html>
 <!DOCTYPE html>
 <html lang="hi">
 <head>
