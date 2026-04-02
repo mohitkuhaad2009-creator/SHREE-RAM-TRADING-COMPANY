@@ -1,4 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+    .tab-nav { margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+    .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #eee; font-weight: bold; }
+    .active-tab { background: #2c3e50; color: white; }
+    .content { display: none; background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .show { display: block; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f8f9fa; }
+    .btn-del { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+  </style>
+</head>
+<body>
 
+  <div class="tab-nav">
+    <button id="btn1" class="tab-btn active-tab" onclick="openTab('activeSec', 'btn1')">Active Data</button>
+    <button id="btn2" class="tab-btn" onclick="openTab('historySec', 'btn2')">Deleted History</button>
+  </div>
+
+  <div id="activeSec" class="content show">
+    <h3>Active Records</h3>
+    <table id="tableActive"><thead><tr id="hActive"></tr></thead><tbody id="bActive"></tbody></table>
+  </div>
+
+  <div id="historySec" class="content">
+    <h3>History Sheet (Deleted)</h3>
+    <table id="tableHistory"><thead><tr id="hHistory"></tr></thead><tbody id="bHistory"></tbody></table>
+  </div>
+
+  <script>
+    function openTab(id, btnId) {
+      document.querySelectorAll('.content').forEach(c => c.classList.remove('show'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+      document.getElementById(id).classList.add('show');
+      document.getElementById(btnId).classList.add('active-tab');
+      loadAllData();
+    }
+
+    function loadAllData() {
+      google.script.run.withSuccessHandler(function(res) {
+        displayTable("bActive", "hActive", res.active, true);
+        displayTable("bHistory", "hHistory", res.history, false);
+      }).getData();
+    }
+
+    function displayTable(tbodyId, headId, data, canDelete) {
+      const tbody = document.getElementById(tbodyId);
+      const header = document.getElementById(headId);
+      tbody.innerHTML = ""; header.innerHTML = "";
+      
+      if (data.length > 0) {
+        data[0].forEach(h => header.innerHTML += `<th>${h}</th>`);
+        if(canDelete) header.innerHTML += `<th>Action</th>`;
+        
+        for (let i = 1; i < data.length; i++) {
+          let row = `<tr>`;
+          data[i].forEach(cell => row += `<td>${cell}</td>`);
+          if(canDelete) row += `<td><button class="btn-del" onclick="runDelete('${data[i][0]}')">Delete</button></td>`;
+          row += `</tr>`;
+          tbody.innerHTML += row;
+        }
+      }
+    }
+
+    function runDelete(id) {
+      if(confirm("Kya aap ise delete karke history mein bhenjna chahte hain?")) {
+        google.script.run.withSuccessHandler(function(msg) {
+          alert(msg);
+          loadAllData(); // Refresh table
+        }).deleteAndMoveToHistory(id);
+      }
+    }
+
+    window.onload = loadAllData;
+  </script>
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="hi">
 <head>
