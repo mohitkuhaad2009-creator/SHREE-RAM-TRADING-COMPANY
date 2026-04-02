@@ -3,6 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Tracker with Full History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4361ee; --success: #2ec4b6; --danger: #e71d36; --bg: #f4f7fe; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 950px; margin: auto; }
+        
+        /* Stats Dashboard */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
+        .stat-box h3 { margin: 0; font-size: 13px; color: #888; text-transform: uppercase; }
+        .stat-box p { margin: 10px 0 0; font-size: 24px; font-weight: 600; }
+
+        /* Form Section */
+        .entry-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        label { font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
+        
+        .btn-row { margin-top: 20px; display: flex; gap: 10px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; flex: 1; transition: 0.3s; text-align: center; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-print { background: #333; color: white; }
+        .btn:hover { opacity: 0.8; }
+
+        /* History Table Section */
+        .history-section { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .history-header { padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 14px; color: #666; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        
+        .type-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .bg-in { background: #e7fbf9; color: var(--success); }
+        .bg-out { background: #fdf2f3; color: var(--danger); }
+        
+        .action-btns { display: flex; gap: 10px; }
+        .delete-btn { color: #e71d36; cursor: pointer; border: none; background: none; font-size: 18px; }
+        .wa-btn { color: #25D366; text-decoration: none; font-size: 18px; }
+
+        @media print { .no-print { display: none; } .history-section { box-shadow: none; border: 1px solid #eee; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="no-print" style="text-align: center; color: var(--primary);">Cash Book History</h2>
+
+    <div class="dashboard no-print">
+        <div class="stat-box"><h3>Total In (+)</h3><p style="color: var(--success);" id="totalIn">₹0</p></div>
+        <div class="stat-box"><h3>Total Out (-)</h3><p style="color: var(--danger);" id="totalOut">₹0</p></div>
+        <div class="stat-box"><h3>Current Balance</h3><p id="netBalance" style="color: var(--primary);">₹0</p></div>
+    </div>
+
+    <div class="entry-form no-print">
+        <div class="grid-inputs">
+            <div><label>Date:</label><input type="date" id="entryDate"></div>
+            <div><label>Description:</label><input type="text" id="desc" placeholder="Detail likho..."></div>
+            <div><label>Amount (₹):</label><input type="number" id="amount" placeholder="0.00"></div>
+            <div><label>Type:</label>
+                <select id="type">
+                    <option value="In">Cash In (+)</option>
+                    <option value="Out">Cash Out (-)</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-save" onclick="addEntry()">Entry Add Karo</button>
+            <button class="btn btn-print" onclick="window.print()">Print Report</button>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header no-print">
+            <h4 style="margin:0;">Transaction History</h4>
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="filterDate" onchange="filterHistory()" style="padding:5px; width:auto;">
+                <button onclick="clearFilter()" style="padding:5px 10px; cursor:pointer;">All Show Karo</button>
+            </div>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th class="no-print">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ajj di date default set karo
+    document.getElementById('entryDate').valueAsDate = new Date();
+
+    // Data Load karna LocalStorage ton
+    let transactions = JSON.parse(localStorage.getItem('cashHistory')) || [];
+
+    function saveAndRender() {
+        localStorage.setItem('cashHistory', JSON.stringify(transactions));
+        renderHistory();
+        updateStats();
+    }
+
+    function updateStats() {
+        let tIn = transactions.filter(t => t.type === 'In').reduce((s, t) => s + Number(t.amount), 0);
+        let tOut = transactions.filter(t => t.type === 'Out').reduce((s, t) => s + Number(t.amount), 0);
+        
+        document.getElementById('totalIn').innerText = `₹${tIn.toLocaleString()}`;
+        document.getElementById('totalOut').innerText = `₹${tOut.toLocaleString()}`;
+        document.getElementById('netBalance').innerText = `₹${(tIn - tOut).toLocaleString()}`;
+    }
+
+    function addEntry() {
+        const date = document.getElementById('entryDate').value;
+        const desc = document.getElementById('desc').value;
+        const amount = document.getElementById('amount').value;
+        const type = document.getElementById('type').value;
+
+        if(!date || !desc || !amount) return alert("Meharbani karke sari detail bharo!");
+
+        transactions.push({ id: Date.now(), date, desc, amount, type });
+        saveAndRender();
+
+        // Clear inputs
+        document.getElementById('desc').value = '';
+        document.getElementById('amount').value = '';
+    }
+
+    function deleteEntry(id) {
+        if(confirm("Ki tusi eh transaction delete karna chaunde ho?")) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveAndRender();
+        }
+    }
+
+    function renderHistory(data = transactions) {
+        const tbody = document.getElementById('historyBody');
+        tbody.innerHTML = '';
+
+        // Sorting: Newest first
+        const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if(sortedData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">Koi history nahi labhi.</td></tr>';
+            return;
+        }
+
+        sortedData.forEach(item => {
+            const row = `<tr>
+                <td>${item.date}</td>
+                <td>${item.desc}</td>
+                <td><span class="type-badge ${item.type === 'In' ? 'bg-in' : 'bg-out'}">${item.type}</span></td>
+                <td style="font-weight:600;">₹${Number(item.amount).toLocaleString()}</td>
+                <td class="no-print action-btns">
+                    <a class="wa-btn" title="Share on WhatsApp" href="https://wa.me/?text=${encodeURIComponent('Cash Update: '+item.desc+' | Amount: ₹'+item.amount+' | Date: '+item.date)}" target="_blank">📲</a>
+                    <button class="delete-btn" title="Delete" onclick="deleteEntry(${item.id})">🗑️</button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function filterHistory() {
+        const fDate = document.getElementById('filterDate').value;
+        if(!fDate) return renderHistory();
+        const filtered = transactions.filter(t => t.date === fDate);
+        renderHistory(filtered);
+    }
+
+    function clearFilter() {
+        document.getElementById('filterDate').value = '';
+        renderHistory();
+    }
+
+    // Initial Load
+    saveAndRender();
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cash Tracker - Manual Date Option</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
