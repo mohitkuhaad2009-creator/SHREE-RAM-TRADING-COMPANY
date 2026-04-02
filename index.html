@@ -1,124 +1,38 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
-    .tab-nav { margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-    .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #eee; font-weight: bold; }
-    .active-tab { background: #2c3e50; color: white; }
-    .content { display: none; background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .show { display: block; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    th { background: #f8f9fa; }
-    .btn-del { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
-  </style>
-</head>
-<body>
-
-  <div class="tab-nav">
-    <button id="btn1" class="tab-btn active-tab" onclick="openTab('activeSec', 'btn1')">Active Data</button>
-    <button id="btn2" class="tab-btn" onclick="openTab('historySec', 'btn2')">Deleted History</button>
-  </div>
-
-  <div id="activeSec" class="content show">
-    <h3>Active Records</h3>
-    <table id="tableActive"><thead><tr id="hActive"></tr></thead><tbody id="bActive"></tbody></table>
-  </div>
-
-  <div id="historySec" class="content">
-    <h3>History Sheet (Deleted)</h3>
-    <table id="tableHistory"><thead><tr id="hHistory"></tr></thead><tbody id="bHistory"></tbody></table>
-  </div>
-
-  <script>
-    function openTab(id, btnId) {
-      document.querySelectorAll('.content').forEach(c => c.classList.remove('show'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
-      document.getElementById(id).classList.add('show');
-      document.getElementById(btnId).classList.add('active-tab');
-      loadAllData();
-    }
-
-    function loadAllData() {
-      google.script.run.withSuccessHandler(function(res) {
-        displayTable("bActive", "hActive", res.active, true);
-        displayTable("bHistory", "hHistory", res.history, false);
-      }).getData();
-    }
-
-    function displayTable(tbodyId, headId, data, canDelete) {
-      const tbody = document.getElementById(tbodyId);
-      const header = document.getElementById(headId);
-      tbody.innerHTML = ""; header.innerHTML = "";
-      
-      if (data.length > 0) {
-        data[0].forEach(h => header.innerHTML += `<th>${h}</th>`);
-        if(canDelete) header.innerHTML += `<th>Action</th>`;
-        
-        for (let i = 1; i < data.length; i++) {
-          let row = `<tr>`;
-          data[i].forEach(cell => row += `<td>${cell}</td>`);
-          if(canDelete) row += `<td><button class="btn-del" onclick="runDelete('${data[i][0]}')">Delete</button></td>`;
-          row += `</tr>`;
-          tbody.innerHTML += row;
-        }
-      }
-    }
-
-    function runDelete(id) {
-      if(confirm("Kya aap ise delete karke history mein bhenjna chahte hain?")) {
-        google.script.run.withSuccessHandler(function(msg) {
-          alert(msg);
-          loadAllData(); // Refresh table
-        }).deleteAndMoveToHistory(id);
-      }
-    }
-
-    window.onload = loadAllData;
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="hi">
+<html lang="pa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHREE RAM TRADING COMPANY - Ledger</title>
+    <title>SHREE RAM TRADING COMPANY</title>
     <style>
-        :root { --primary: #1a237e; --secondary: #2e7d32; --danger: #c62828; --whatsapp: #25D366; --warning: #fb8c00; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
-        .container { max-width: 600px; background: white; padding: 20px; margin: auto; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-transform: uppercase; }
+        :root { --primary: #1a237e; --secondary: #2e7d32; --danger: #c62828; --whatsapp: #25D366; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; }
+        .container { max-width: 600px; background: white; padding: 20px; margin: auto; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: var(--primary); margin-top: 0; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        @media print { .no-print { display: none !important; } .container { box-shadow: none; border: none; width: 100%; max-width: 100%; } }
+        @media print { .no-print { display: none !important; } .container { box-shadow: none; border: none; width: 100%; } }
 
-        .balance-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .box { padding: 15px; border-radius: 12px; text-align: center; color: white; font-weight: bold; }
+        .balance-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .box { padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; }
         .in-box { background: var(--secondary); }
         .out-box { background: var(--danger); }
         .net-box { background: var(--primary); grid-column: span 2; font-size: 1.2rem; }
 
-        .form-group { display: flex; flex-direction: column; gap: 10px; background: #fffde7; padding: 15px; border-radius: 12px; border: 1px solid #fbc02d; margin-bottom: 20px; }
-        input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; outline: none; }
-        .btn-save { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-save:hover { background: #0d1440; }
-        .btn-save:disabled { background: #999; cursor: not-allowed; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; background: #fffde7; padding: 15px; border-radius: 10px; border: 1px solid #fbc02d; }
+        input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        .btn-save { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: left; font-size: 14px; }
-        th { background: #f8f9fa; color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; font-size: 13px; }
+        th { background: #f1f1f1; color: var(--primary); }
         .amt-in { color: var(--secondary); font-weight: bold; }
         .amt-out { color: var(--danger); font-weight: bold; }
         
-        .action-btns { display: flex; gap: 4px; }
-        .btn-action { padding: 6px; border-radius: 6px; border: none; color: white; cursor: pointer; font-size: 12px; font-weight: bold; min-width: 35px; }
-        .btn-print { background: var(--warning); }
+        .btn-action { padding: 5px 8px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 11px; margin-right: 2px; font-weight: bold; }
+        .btn-print { background: #fb8c00; }
         .btn-whatsapp { background: var(--whatsapp); }
         .btn-delete { background: var(--danger); }
-        
-        #status { text-align: center; display: none; margin: 10px; color: var(--primary); font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
+        #status { text-align: center; display: none; margin: 10px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -128,24 +42,24 @@
         <h2>SHREE RAM TRADING COMPANY</h2>
 
         <div class="balance-card">
-            <div class="box in-box">Total In<br>₹<span id="tIn">0</span></div>
-            <div class="box out-box">Total Out<br>₹<span id="tOut">0</span></div>
+            <div class="box in-box">In: ₹<span id="tIn">0</span></div>
+            <div class="box out-box">Out: ₹<span id="tOut">0</span></div>
             <div class="box net-box">Net Balance: ₹<span id="tNet">0</span></div>
         </div>
 
         <div class="form-group">
             <input type="date" id="date">
-            <input type="text" id="desc" placeholder="Details (Kise diya / Kahan se aaya)">
+            <input type="text" id="desc" placeholder="Details likho">
             <input type="number" id="amount" placeholder="Amount (₹)">
             <select id="type">
                 <option value="in">Cash In (+)</option>
                 <option value="out">Cash Out (-)</option>
             </select>
-            <button class="btn-save" id="saveBtn" onclick="saveToSheet()">SAVE TO CLOUD</button>
+            <button class="btn-save" id="saveBtn" onclick="saveToSheet()">SAVE ENTRY</button>
         </div>
     </div>
 
-    <div id="status">Syncing with Google Sheets...</div>
+    <div id="status">Updating... Please wait.</div>
 
     <div class="table-container">
         <table>
@@ -153,7 +67,7 @@
                 <tr>
                     <th>Date</th>
                     <th>Details</th>
-                    <th>Amount</th>
+                    <th>Amt</th>
                     <th class="no-print">Actions</th>
                 </tr>
             </thead>
@@ -162,22 +76,21 @@
     </div>
 </div>
 
-<div id="receipt-print" style="display:none; text-align:center; border:2px solid #000; padding:25px; width:300px; margin:auto; font-family: 'Courier New', Courier, monospace;">
-    <h2 style="margin:0;">SHREE RAM TRADING COMPANY</h2>
-    <p style="margin:5px 0;">Official Cash Receipt</p>
+<div id="receipt-print" style="display:none; text-align:center; border:2px solid #000; padding:20px; width:300px; margin:auto;">
+    <h2>SHREE RAM TRADING COMPANY</h2>
     <hr>
-    <div style="text-align:left; line-height: 1.6;">
-        <p id="r-date"></p>
-        <p id="r-desc"></p>
-        <p id="r-type" style="font-weight:bold;"></p>
-        <h1 id="r-amount" style="background:#eee; text-align:center; padding:10px; border:1px dashed #000;"></h1>
-    </div>
+    <h3>RECEIPT</h3>
+    <p id="r-date"></p>
+    <p id="r-desc"></p>
+    <p id="r-type"></p>
+    <h2 id="r-amount"></h2>
     <hr>
-    <p style="margin-top:40px;">Authorized Signature</p>
+    <p>Signature</p>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFoLX0uE8igSQ3DeQgN5Xzn2wb2UQljRsexOPy9CfjAEdP-zAuCmF1M-jVD2FkTKsE/exec'; 
+    // ********* APNA URL ETHE PASTE KARO *********
+    const SCRIPT_URL = 'APNA_NEW_URL_HERE'; 
 
     let globalData = [];
 
@@ -185,10 +98,9 @@
         document.getElementById('status').style.display = 'block';
         try {
             const res = await fetch(SCRIPT_URL);
-            const rawData = await res.json();
-            globalData = rawData;
+            globalData = await res.json();
             renderTable(globalData);
-        } catch (e) { console.error("Data fetch failed"); }
+        } catch (e) { console.log("Error loading data"); }
         document.getElementById('status').style.display = 'none';
     }
 
@@ -197,7 +109,6 @@
         table.innerHTML = '';
         let totalIn = 0, totalOut = 0;
 
-        // Latest entries at top
         const displayData = [...data].reverse();
 
         displayData.forEach((item) => {
@@ -209,11 +120,9 @@
                 <td>${item.desc}</td>
                 <td class="${isIn ? 'amt-in' : 'amt-out'}">${isIn ? '+' : '-'}${val}</td>
                 <td class="no-print">
-                    <div class="action-btns">
-                        <button class="btn-action btn-whatsapp" onclick="shareWhatsapp(${item.row})" title="WhatsApp">WA</button>
-                        <button class="btn-action btn-print" onclick="printSingle(${item.row})" title="Print">PR</button>
-                        <button class="btn-action btn-delete" onclick="deleteEntry(${item.row})" title="Delete">DEL</button>
-                    </div>
+                    <button class="btn-action btn-whatsapp" onclick="shareWhatsapp(${item.row})">WA</button>
+                    <button class="btn-action btn-print" onclick="printSingle(${item.row})">Print</button>
+                    <button class="btn-action btn-delete" onclick="deleteEntry(${item.row})">Del</button>
                 </td>
             </tr>`;
             table.innerHTML += row;
@@ -221,9 +130,9 @@
             if(isIn) totalIn += val; else totalOut += val;
         });
 
-        document.getElementById('tIn').innerText = totalIn.toLocaleString('en-IN');
-        document.getElementById('tOut').innerText = totalOut.toLocaleString('en-IN');
-        document.getElementById('tNet').innerText = (totalIn - totalOut).toLocaleString('en-IN');
+        document.getElementById('tIn').innerText = totalIn;
+        document.getElementById('tOut').innerText = totalOut;
+        document.getElementById('tNet').innerText = totalIn - totalOut;
     }
 
     async function saveToSheet() {
@@ -232,10 +141,9 @@
         const amount = document.getElementById('amount').value;
         const type = document.getElementById('type').value;
 
-        if(!date || !desc || !amount) return alert("Kripya saari jankari bharein!");
+        if(!date || !desc || !amount) return alert("Sari jankari bharo!");
 
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.disabled = true;
+        document.getElementById('saveBtn').disabled = true;
         document.getElementById('status').style.display = 'block';
 
         try {
@@ -249,42 +157,28 @@
                 document.getElementById('desc').value = '';
                 document.getElementById('amount').value = '';
                 loadData();
-                saveBtn.disabled = false;
-                alert("Entry Cloud par Save ho gayi!");
+                document.getElementById('saveBtn').disabled = false;
+                alert("Saved!");
             }, 2000);
-        } catch (e) { alert("Network Error!"); saveBtn.disabled = false; }
+        } catch (e) { alert("Error!"); }
     }
 
     async function deleteEntry(rowIdx) {
-        if(!confirm("Kya aap ise DELETE karna chahte hain? (Backup Deleted_History mein save ho jayega)")) return;
-        
+        if(!confirm("Ki tusi delete karna chahunde ho?")) return;
         document.getElementById('status').style.display = 'block';
-        document.getElementById('status').innerText = "Deleting and Backing up...";
-
         try {
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({ action: "delete", row: rowIdx })
             });
-            setTimeout(() => { 
-                loadData(); 
-                alert("Entry Deleted & Moved to Trash!"); 
-            }, 2000);
-        } catch (e) { alert("Delete fail ho gaya!"); }
+            setTimeout(() => { loadData(); alert("Deleted!"); }, 2000);
+        } catch (e) { alert("Error!"); }
     }
 
     function shareWhatsapp(idx) {
         const item = globalData.find(d => d.row === idx);
-        const typeTxt = item.type === 'in' ? 'CASH RECEIVED (+)' : 'CASH PAID (-)';
-        const msg = `*SHREE RAM TRADING COMPANY*%0A` +
-                    `--------------------------%0A` +
-                    `*Date:* ${item.date}%0A` +
-                    `*Details:* ${item.desc}%0A` +
-                    `*Status:* ${typeTxt}%0A` +
-                    `*Amount:* ₹${item.amount}%0A` +
-                    `--------------------------%0A` +
-                    `_Generated via Digital Ledger_`;
+        const msg = `*SHREE RAM TRADING COMPANY*%0A*Date:* ${item.date}%0A*Details:* ${item.desc}%0A*Amt:* ₹${item.amount}`;
         window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     }
 
@@ -292,9 +186,8 @@
         const item = globalData.find(d => d.row === idx);
         document.getElementById('r-date').innerText = "Date: " + item.date;
         document.getElementById('r-desc').innerText = "Details: " + item.desc;
-        document.getElementById('r-type').innerText = "Status: " + (item.type === 'in' ? 'Money Received' : 'Money Paid');
+        document.getElementById('r-type').innerText = "Type: " + (item.type === 'in' ? 'Received' : 'Paid');
         document.getElementById('r-amount').innerText = "₹" + item.amount;
-
         document.getElementById('main-content').style.display = 'none';
         document.getElementById('receipt-print').style.display = 'block';
         window.print();
@@ -302,7 +195,6 @@
         document.getElementById('receipt-print').style.display = 'none';
     }
 
-    // Set Default Date to Today
     document.getElementById('date').valueAsDate = new Date();
     loadData();
 </script>
