@@ -3,6 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Param Shriram Trading - Cash Tracker</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; }
+        
+        /* Dashboard */
+        .balance-card { background: #1a73e8; color: white; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; }
+        .balance-card h1 { margin: 5px 0; font-size: 32px; }
+
+        .form-section, .filter-section { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        input, select, button { padding: 12px; margin: 5px 0; width: 100%; box-sizing: border-box; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+        button { background: #1a73e8; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1557b0; }
+        .refresh-btn { background: #34a853; margin-bottom: 10px; }
+
+        /* Table Style */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background: #f1f3f4; color: #444; }
+        .in { color: green; font-weight: bold; }
+        .out { color: red; font-weight: bold; }
+
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Param Shriram Trading Co.</h2>
+
+    <div class="balance-card">
+        <small>Total Cash in Hand</small>
+        <h1 id="mainBalance">₹0</h1>
+    </div>
+
+    <div class="form-section">
+        <h3>Nayi Entry (Add New)</h3>
+        <div class="grid">
+            <input type="text" id="name" placeholder="Bande da Naam (Name)">
+            <input type="number" id="amount" placeholder="Amount (₹)">
+        </div>
+        <div class="grid">
+            <select id="type">
+                <option value="Cash In">Cash In (Kamayi)</option>
+                <option value="Cash Out">Cash Out (Kharcha)</option>
+            </select>
+            <input type="text" id="remark" placeholder="Remark (Kihde layi/Kithon)">
+        </div>
+        <button id="saveBtn" onclick="sendData()">Save Transaction</button>
+    </div>
+
+    <div class="filter-section">
+        <h3>Transaction History</h3>
+        <input type="text" id="searchName" placeholder="Naam naal labho (Search by Name)..." onkeyup="filterTable()">
+        <button class="refresh-btn" onclick="loadHistory()">Refresh History (Data Update Karo)</button>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Remark</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. APNA GOOGLE SCRIPT URL ETHE PAO
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwewUNZbkdq__fZucwoIHBKdszveToMIVVDoAB0bDRcPRnV3yNqa5ZRinhy5b6DovEo/exec';
+
+    // 2. Data bhejnan layi function
+    async function sendData() {
+        const name = document.getElementById('name').value;
+        const amount = document.getElementById('amount').value;
+        const type = document.getElementById('type').value;
+        const remark = document.getElementById('remark').value;
+        const btn = document.getElementById('saveBtn');
+
+        if(!name || !amount) return alert("Pehla Naam te Amount bharo!");
+
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ name, amount, type, remark })
+        });
+
+        alert("Data save ho gaya!");
+        btn.innerText = "Save Transaction";
+        btn.disabled = false;
+        
+        // Inputs saaf karo
+        document.getElementById('name').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('remark').value = '';
+        
+        loadHistory(); // Table refresh karo
+    }
+
+    // 3. Google Sheet ton history load karan layi
+    async function loadHistory() {
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+            const tbody = document.getElementById('tableBody');
+            let balance = 0;
+            tbody.innerHTML = "";
+
+            // Nayi entries upar dikhaun layi reverse kitiyan han
+            data.reverse().forEach(row => {
+                const amt = parseFloat(row[2]);
+                if(row[3] === 'Cash In') balance += amt;
+                else balance -= amt;
+
+                const date = new Date(row[0]).toLocaleDateString('en-IN');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${date}</td>
+                    <td>${row[1]}</td>
+                    <td class="${row[3] == 'Cash In' ? 'in' : 'out'}">₹${amt}</td>
+                    <td>${row[3]}</td>
+                    <td>${row[4]}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Balance update karo
+            document.getElementById('mainBalance').innerText = "₹" + balance.toLocaleString('en-IN');
+        } catch (e) {
+            console.log("Error loading data. Check if URL is correct and Apps Script is deployed as 'Anyone'.");
+        }
+    }
+
+    // 4. Search function
+    function filterTable() {
+        const input = document.getElementById("searchName").value.toUpperCase();
+        const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            const nameCol = rows[i].getElementsByTagName("td")[1];
+            if (nameCol) {
+                const textValue = nameCol.textContent || nameCol.innerText;
+                rows[i].style.display = textValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+            }
+        }
+    }
+
+    // Page khulde hi history load karo
+    window.onload = loadHistory;
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Param Shriram Trading - Pro Tracker</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
