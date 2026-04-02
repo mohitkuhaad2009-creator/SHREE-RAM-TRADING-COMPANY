@@ -1,38 +1,38 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="pa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHREE RAM TRADING COMPANY - Ledger</title>
+    <title>SHREE RAM TRADING COMPANY</title>
     <style>
         :root { --primary: #1a237e; --secondary: #2e7d32; --danger: #c62828; --whatsapp: #25D366; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; }
         .container { max-width: 600px; background: white; padding: 20px; margin: auto; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h2 { text-align: center; color: var(--primary); margin-top: 0; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        @media print { .no-print { display: none !important; } .container { box-shadow: none; border: none; width: 100%; } .print-only { display: block !important; } }
+        @media print { .no-print { display: none !important; } .container { box-shadow: none; border: none; width: 100%; } }
 
         .balance-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .box { padding: 12px; border-radius: 8px; text-align: center; color: white; font-weight: bold; }
         .in-box { background: var(--secondary); }
         .out-box { background: var(--danger); }
-        .net-box { background: var(--primary); grid-column: span 2; font-size: 1.1rem; }
+        .net-box { background: var(--primary); grid-column: span 2; font-size: 1.2rem; }
 
-        .form-group { display: flex; flex-direction: column; gap: 8px; background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; background: #fffde7; padding: 15px; border-radius: 10px; border: 1px solid #fbc02d; }
         input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
         .btn-save { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-save:disabled { background: #999; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; font-size: 14px; }
+        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; font-size: 13px; }
         th { background: #f1f1f1; color: var(--primary); }
         .amt-in { color: var(--secondary); font-weight: bold; }
         .amt-out { color: var(--danger); font-weight: bold; }
         
-        .btn-action { padding: 6px 10px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 12px; margin-right: 3px; font-weight: bold; }
+        .btn-action { padding: 6px 10px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 11px; margin-right: 2px; font-weight: bold; }
         .btn-print { background: #fb8c00; }
         .btn-whatsapp { background: var(--whatsapp); }
-        #status { text-align: center; display: none; margin: 10px; color: var(--primary); font-weight: bold; }
+        .btn-delete { background: var(--danger); }
+        #status { text-align: center; display: none; margin: 10px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -49,26 +49,25 @@
 
         <div class="form-group">
             <input type="date" id="date">
-            <input type="text" id="desc" placeholder="Details (Details likhein)">
+            <input type="text" id="desc" placeholder="Details (Description)">
             <input type="number" id="amount" placeholder="Amount (₹)">
             <select id="type">
                 <option value="in">Cash In (+)</option>
                 <option value="out">Cash Out (-)</option>
             </select>
-            <button class="btn-save" id="saveBtn" onclick="saveToSheet()">SAVE TO CLOUD</button>
+            <button class="btn-save" id="saveBtn" onclick="saveToSheet()">SAVE ENTRY</button>
         </div>
     </div>
 
-    <div id="status">Syncing Data...</div>
+    <div id="status">Updating Cloud...</div>
 
     <div class="table-container">
-        <h3 class="print-only" style="display:none; text-align:center;">SHREE RAM TRADING COMPANY - Report</h3>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Details</th>
-                    <th>Amount</th>
+                    <th>Amt</th>
                     <th class="no-print">Actions</th>
                 </tr>
             </thead>
@@ -77,20 +76,21 @@
     </div>
 </div>
 
-<div id="receipt-print" style="display:none; text-align:center; border:2px solid #000; padding:25px; width:300px; margin:auto; font-family: serif;">
-    <h2 style="margin:0;">SHREE RAM TRADING COMPANY</h2>
-    <p style="margin:5px 0;">Digital Payment Receipt</p>
+<div id="receipt-print" style="display:none; text-align:center; border:2px solid #000; padding:20px; width:300px; margin:auto;">
+    <h2>SHREE RAM TRADING COMPANY</h2>
     <hr>
-    <p id="r-date" style="text-align:left;"></p>
-    <p id="r-desc" style="text-align:left;"></p>
-    <p id="r-type" style="text-align:left; font-weight:bold;"></p>
-    <h1 id="r-amount" style="background:#eee; padding:10px;"></h1>
+    <h3>CASH RECEIPT</h3>
+    <p id="r-date"></p>
+    <p id="r-desc"></p>
+    <p id="r-type"></p>
+    <h2 id="r-amount"></h2>
     <hr>
-    <p style="margin-top:40px;">Authorized Signature</p>
+    <p>Signature: ___________</p>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz40Wjy-WphlcFwjSQTUFVZsJA_iuDoMqJn_iSHAeQUTFv_o-noNsz0iXTcrR3qX_HK/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoTTgED-QTah3nAUa7TS8Ay7PzOGt-oMQlhSAjXbwBSF0Bjm_ruaEDe1CPELZMuWk2/exec'; 
+
     let globalData = [];
 
     async function loadData() {
@@ -99,7 +99,7 @@
             const res = await fetch(SCRIPT_URL);
             globalData = await res.json();
             renderTable(globalData);
-        } catch (e) { console.log("Network Error"); }
+        } catch (e) { console.log("Load Error"); }
         document.getElementById('status').style.display = 'none';
     }
 
@@ -110,18 +110,18 @@
 
         const displayData = [...data].reverse();
 
-        displayData.forEach((item, index) => {
+        displayData.forEach((item) => {
             let val = parseFloat(item.amount) || 0;
             let isIn = item.type === 'in';
-            let originalIdx = data.length - 1 - index; 
             
             let row = `<tr>
                 <td>${item.date}</td>
                 <td>${item.desc}</td>
                 <td class="${isIn ? 'amt-in' : 'amt-out'}">${isIn ? '+' : '-'}${val}</td>
                 <td class="no-print">
-                    <button class="btn-action btn-whatsapp" onclick="shareWhatsapp(${originalIdx})">WA</button>
-                    <button class="btn-action btn-print" onclick="printSingle(${originalIdx})">Print</button>
+                    <button class="btn-action btn-whatsapp" onclick="shareWhatsapp(${item.row})">WA</button>
+                    <button class="btn-action btn-print" onclick="printSingle(${item.row})">Print</button>
+                    <button class="btn-action btn-delete" onclick="deleteEntry(${item.row})">Del</button>
                 </td>
             </tr>`;
             table.innerHTML += row;
@@ -139,10 +139,10 @@
         const desc = document.getElementById('desc').value;
         const amount = document.getElementById('amount').value;
         const type = document.getElementById('type').value;
+
+        if(!date || !desc || !amount) return alert("Pehle saari jankari bharein!");
+
         const saveBtn = document.getElementById('saveBtn');
-
-        if(!date || !desc || !amount) return alert("Pehle sab kuch bharein!");
-
         saveBtn.disabled = true;
         document.getElementById('status').style.display = 'block';
 
@@ -158,27 +158,39 @@
                 document.getElementById('amount').value = '';
                 loadData();
                 saveBtn.disabled = false;
-                alert("Entry Saved Successfully!");
+                alert("Saved to Cloud!");
             }, 2000);
-        } catch (e) { alert("Error connecting to Cloud!"); saveBtn.disabled = false; }
+        } catch (e) { alert("Error saving data!"); saveBtn.disabled = false; }
     }
 
-    function shareWhatsapp(index) {
-        const item = globalData[index];
+    async function deleteEntry(rowIdx) {
+        if(!confirm("Kya aap ise delete karna chahte hain?")) return;
+        document.getElementById('status').style.display = 'block';
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: "delete", row: rowIdx })
+            });
+            setTimeout(() => { loadData(); alert("Deleted!"); }, 2000);
+        } catch (e) { alert("Delete Error!"); }
+    }
+
+    function shareWhatsapp(idx) {
+        const item = globalData.find(d => d.row === idx);
         const typeTxt = item.type === 'in' ? 'CASH RECEIVED (+)' : 'CASH PAID (-)';
         const msg = `*SHREE RAM TRADING COMPANY*%0A` +
                     `--------------------------%0A` +
                     `*Date:* ${item.date}%0A` +
                     `*Details:* ${item.desc}%0A` +
-                    `*Type:* ${typeTxt}%0A` +
+                    `*Status:* ${typeTxt}%0A` +
                     `*Amount:* ₹${item.amount}%0A` +
-                    `--------------------------%0A` +
-                    `_Generated via Digital Ledger_`;
+                    `--------------------------`;
         window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     }
 
-    function printSingle(index) {
-        const item = globalData[index];
+    function printSingle(idx) {
+        const item = globalData.find(d => d.row === idx);
         document.getElementById('r-date').innerText = "Date: " + item.date;
         document.getElementById('r-desc').innerText = "Details: " + item.desc;
         document.getElementById('r-type').innerText = "Status: " + (item.type === 'in' ? 'Money Received' : 'Money Paid');
