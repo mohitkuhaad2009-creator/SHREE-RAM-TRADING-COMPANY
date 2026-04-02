@@ -18,11 +18,13 @@
         .out-box { background: var(--danger); }
         .net-box { background: var(--primary); grid-column: span 2; font-size: 1.2rem; }
 
+        /* Filter Section Styling */
+        .filter-section { background: #e3f2fd; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-section input, .filter-section select { flex: 1; min-width: 120px; padding: 8px; border: 1px solid #90caf9; }
+
         .form-group { display: flex; flex-direction: column; gap: 10px; background: #fffde7; padding: 15px; border-radius: 12px; border: 1px solid #fbc02d; margin-bottom: 20px; }
         input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; outline: none; }
         .btn-save { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-save:hover { background: #0d1440; }
-        .btn-save:disabled { background: #999; cursor: not-allowed; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: left; font-size: 14px; }
@@ -50,6 +52,15 @@
             <div class="box in-box">Total In<br>₹<span id="tIn">0</span></div>
             <div class="box out-box">Total Out<br>₹<span id="tOut">0</span></div>
             <div class="box net-box">Net Balance: ₹<span id="tNet">0</span></div>
+        </div>
+
+        <div class="filter-section">
+            <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="🔍 Search Details (Name)...">
+            <select id="filterType" onchange="applyFilters()">
+                <option value="all">All Entries</option>
+                <option value="in">Cash In Only</option>
+                <option value="out">Cash Out Only</option>
+            </select>
         </div>
 
         <div class="form-group">
@@ -96,7 +107,7 @@
 </div>
 
 <script>
-    // APNA NAYA SCRIPT URL YAHAN PASTE KAREIN
+    // APNA SCRIPT URL YAHAN DALEIN
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvOqXMUITgWoMYvqi-bnjYoKOJwsBurffeCmX_Uu0yG0fzaS7fC_glsbituXoFI8b8/exec'; 
 
     let globalData = [];
@@ -105,11 +116,24 @@
         document.getElementById('status').style.display = 'block';
         try {
             const res = await fetch(SCRIPT_URL);
-            const rawData = await res.json();
-            globalData = rawData;
+            globalData = await res.json();
             renderTable(globalData);
         } catch (e) { console.error("Data fetch failed"); }
         document.getElementById('status').style.display = 'none';
+    }
+
+    // FILTER LOGIC
+    function applyFilters() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('filterType').value;
+
+        const filteredData = globalData.filter(item => {
+            const matchSearch = item.desc.toLowerCase().includes(searchText);
+            const matchType = (typeFilter === 'all') || (item.type === typeFilter);
+            return matchSearch && matchType;
+        });
+
+        renderTable(filteredData);
     }
 
     function renderTable(data) {
@@ -145,19 +169,58 @@
         document.getElementById('tNet').innerText = (totalIn - totalOut).toLocaleString('en-IN');
     }
 
+    // Save and Delete functions same as before...
     async function saveToSheet() {
         const date = document.getElementById('date').value;
         const desc = document.getElementById('desc').value;
         const amount = document.getElementById('amount').value;
         const type = document.getElementById('type').value;
-
-        if(!date || !desc || !amount) return alert("Kripya saari jankari bharein!");
-
+        if(!date || !desc || !amount) return alert("Fill all fields!");
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
         document.getElementById('status').style.display = 'block';
-
         try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ date, desc, amount, type }) });
+            setTimeout(() => { 
+                document.getElementById('desc').value = ''; 
+                document.getElementById('amount').value = '';
+                loadData(); 
+                saveBtn.disabled = false; 
+            }, 1500);
+        } catch (e) { alert("Error!"); saveBtn.disabled = false; }
+    }
+
+    async function deleteEntry(rowIdx) {
+        if(!confirm("Delete this entry?")) return;
+        document.getElementById('status').style.display = 'block';
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "delete", row: rowIdx }) });
+            setTimeout(() => { loadData(); }, 1500);
+        } catch (e) { alert("Fail!"); }
+    }
+
+    function shareWhatsapp(idx) {
+        const item = globalData.find(d => d.row === idx);
+        const msg = `*SHREE RAM TRADING*%0AData: ${item.date}%0AAmount: ₹${item.amount}`;
+        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    }
+
+    function printSingle(idx) {
+        const item = globalData.find(d => d.row === idx);
+        document.getElementById('r-date').innerText = "Date: " + item.date;
+        document.getElementById('r-desc').innerText = "Details: " + item.desc;
+        document.getElementById('r-type').innerText = "Status: " + (item.type === 'in' ? 'Received' : 'Paid');
+        document.getElementById('r-amount').innerText = "₹" + item.amount;
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('receipt-print').style.display = 'block';
+        window.print();
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('receipt-print').style.display = 'none';
+    }
+
+    document.getElementById('date').valueAsDate = new Date();
+    loadData();
+</script>
+
+</body>
+</html>
