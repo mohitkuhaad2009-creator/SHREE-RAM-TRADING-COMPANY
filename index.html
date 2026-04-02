@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pa">
 <head>
@@ -5,92 +6,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cash Tracker - Shree Ram Trading Company</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #d32f2f; margin-bottom: 5px; }
-        h2 { text-align: center; color: #555; font-size: 1.2rem; margin-top: 0; }
-        .balance-card { background: #2e7d32; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { background-color: #d32f2f; color: white; border: none; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #b71c1c; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border-bottom: 1px solid #ddd; padding: 12px; text-align: left; }
-        .credit { color: #2e7d32; font-weight: bold; }
-        .debit { color: #d32f2f; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #eef2f3; margin: 0; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #d32f2f; margin-bottom: 5px; text-transform: uppercase; }
+        h2 { text-align: center; color: #555; font-size: 1rem; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid #d32f2f; padding-bottom: 10px; }
+        
+        .dashboard { display: flex; gap: 15px; margin-bottom: 20px; }
+        .card { flex: 1; padding: 15px; border-radius: 8px; text-align: center; color: white; }
+        .bg-balance { background: #1a237e; }
+        
+        .input-section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        input { flex: 2; }
+        select { flex: 1; }
+        
+        .add-btn { background-color: #2e7d32; color: white; border: none; cursor: pointer; width: 100%; font-weight: bold; }
+        .add-btn:hover { background-color: #1b5e20; }
+        
+        .history-section { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #f4f4f4; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        
+        .credit-text { color: #2e7d32; font-weight: bold; }
+        .debit-text { color: #d32f2f; font-weight: bold; }
+        .delete-btn { color: #d32f2f; cursor: pointer; border: none; background: none; font-size: 18px; }
+        .clear-all { background: #555; margin-top: 10px; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>SHREE RAM TRADING COMPANY</h1>
-    <h2>Daily Cash Tracker</h2>
+    <h2>Cash Management System</h2>
 
-    <div class="balance-card">
-        <h3>Total Balance</h3>
-        <p id="totalBalance" style="font-size: 24px;">₹ 0.00</p>
+    <div class="dashboard">
+        <div class="card bg-balance">
+            <small>Current Balance</small>
+            <div id="totalBalance" style="font-size: 1.8rem; font-weight: bold;">₹ 0</div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Transaction Name</label>
-        <input type="text" id="name" placeholder="e.g. Sales, Rent, Party Payment">
+    <div class="input-section">
+        <div class="form-row">
+            <input type="text" id="desc" placeholder="Details (e.g. Rice Sale)">
+            <input type="number" id="amt" placeholder="Amount (₹)">
+        </div>
+        <div class="form-row">
+            <select id="transType">
+                <option value="credit">Cash In (Credit)</option>
+                <option value="debit">Cash Out (Debit)</option>
+            </select>
+            <button class="add-btn" onclick="saveTransaction()">Add Entry</button>
+        </div>
     </div>
-    <div class="form-group">
-        <label>Amount (₹)</label>
-        <input type="number" id="amount" placeholder="0.00">
-    </div>
-    <div class="form-group">
-        <label>Type</label>
-        <select id="type">
-            <option value="credit">Income (Credit)</option>
-            <option value="debit">Expense (Debit)</option>
-        </select>
-    </div>
-    <button onclick="addTransaction()">Add Entry</button>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Details</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody id="transactionList"></tbody>
-    </table>
+    <div class="history-section">
+        <h3>Transaction History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Details</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+        </table>
+        <button class="clear-all" onclick="clearHistory()">Clear All History</button>
+    </div>
 </div>
 
 <script>
-    let totalBalance = 0;
+    let transactions = JSON.parse(localStorage.getItem('shreeRamCash')) || [];
 
-    function addTransaction() {
-        const name = document.getElementById('name').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-        const type = document.getElementById('type').value;
-
-        if (name === "" || isNaN(amount)) {
-            alert("Kripya sahi detail bharo!");
-            return;
-        }
-
-        const list = document.getElementById('transactionList');
-        const row = list.insertRow();
-        
-        // Update Balance
-        if (type === 'credit') {
-            totalBalance += amount;
-            row.innerHTML = `<td>${name}</td><td class="credit">+ ₹${amount}</td>`;
-        } else {
-            totalBalance -= amount;
-            row.innerHTML = `<td>${name}</td><td class="debit">- ₹${amount}</td>`;
-        }
-
-        document.getElementById('totalBalance').innerText = `₹ ${totalBalance.toFixed(2)}`;
-
-        // Clear Inputs
-        document.getElementById('name').value = "";
-        document.getElementById('amount').value = "";
-    }
-</script>
-
-</body>
-</html>
+    function updateUI() {
+        const tableBody = document.getElementById('historyTable');
+        const balanceDisplay = document.getElementById('totalBalance');
+        tableBody.innerHTML = '';
