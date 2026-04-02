@@ -5,91 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Param Shriram Trading - Cash Tracker</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        .balance-card { background: #28a745; color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-        .balance-card h1 { margin: 0; font-size: 2.5rem; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 0.9em; }
         .form-group { margin-bottom: 15px; }
-        input, select, button { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { background: #007bff; color: white; font-weight: bold; border: none; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f8f9fa; }
-        .text-in { color: green; font-weight: bold; }
-        .text-out { color: red; font-weight: bold; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #1557b0; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Param Shriram Trading Co.</h2>
+    <h2>Param Shriram Trading</h2>
+    <p class="subtitle">Official Cash Tracker</p>
     
-    <div class="balance-card">
-        <p>Total Cash in Hand</p>
-        <h1 id="totalBalance">₹0</h1>
+    <div class="form-group">
+        <label>Amount (Paise)</label>
+        <input type="number" id="amount" placeholder="₹ Enter Amount" required>
     </div>
 
     <div class="form-group">
-        <input type="number" id="amount" placeholder="Amount (₹) bharyo">
+        <label>Transaction Type</label>
         <select id="type">
-            <option value="in">Cash In (Kamayi)</option>
-            <option value="out">Cash Out (Kharcha)</option>
+            <option value="Cash In (Kamayi)">Cash In (Kamayi)</option>
+            <option value="Cash Out (Kharcha)">Cash Out (Kharcha)</option>
         </select>
-        <input type="text" id="remark" placeholder="Remark (Kihnu dite/kiton aaye)">
-        <button onclick="addTransaction()">Add Entry</button>
     </div>
 
-    <h3>Recent Transactions</h3>
-    <table id="transactionTable">
-        <thead>
-            <tr>
-                <th>Details</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody id="historyBody">
-            </tbody>
-    </table>
+    <div class="form-group">
+        <label>Remark (Viraam)</label>
+        <input type="text" id="remark" placeholder="e.g. Diesel, Labour, Sale">
+    </div>
+
+    <button id="submitBtn" onclick="sendData()">Save to Google Sheet</button>
+    <div id="status"></div>
 </div>
 
 <script>
-    let total = 0;
-
-    function addTransaction() {
-        const amount = parseFloat(document.getElementById('amount').value);
+    async function sendData() {
+        const amount = document.getElementById('amount').value;
         const type = document.getElementById('type').value;
         const remark = document.getElementById('remark').value;
+        const statusDiv = document.getElementById('status');
+        const btn = document.getElementById('submitBtn');
 
-        if (isNaN(amount) || amount <= 0) {
-            alert("Please sahi amount bharyo!");
+        // Tuhada Google Script URL
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwewUNZbkdq__fZucwoIHBKdszveToMIVVDoAB0bDRcPRnV3yNqa5ZRinhy5b6DovEo/exec';
+
+        if (!amount || amount <= 0) {
+            alert("Kripya sahi amount bharo!");
             return;
         }
 
-        // Update Total
-        if (type === 'in') {
-            total += amount;
-        } else {
-            total -= amount;
+        // Loading state
+        btn.disabled = true;
+        btn.innerText = "Saving Data...";
+        statusDiv.innerHTML = "Processing...";
+        statusDiv.className = "";
+
+        const data = {
+            amount: amount,
+            type: type,
+            remark: remark
+        };
+
+        try {
+            // Google Sheets nu data bhej rahe han
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Google Apps Script layi zaroori hai
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            // Success message
+            statusDiv.innerHTML = "✅ Data successfully save ho gaya!";
+            statusDiv.className = "success";
+            
+            // Form clear karo
+            document.getElementById('amount').value = '';
+            document.getElementById('remark').value = '';
+        } catch (error) {
+            console.error('Error:', error);
+            statusDiv.innerHTML = "❌ Error: Data save nahi hoya!";
+            statusDiv.className = "error";
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Save to Google Sheet";
         }
-
-        // Update Balance Display
-        document.getElementById('totalBalance').innerText = "₹" + total;
-
-        // Add to Table
-        const tableBody = document.getElementById('historyBody');
-        const row = tableBody.insertRow(0);
-        
-        const cell1 = row.insertCell(0);
-        const cell2 = row.insertCell(1);
-
-        cell1.innerHTML = `<strong>${remark || 'No Remark'}</strong><br><small>${new Date().toLocaleDateString()}</small>`;
-        cell2.innerHTML = `<span class="${type === 'in' ? 'text-in' : 'text-out'}">${type === 'in' ? '+' : '-'} ₹${amount}</span>`;
-
-        // Clear Inputs
-        document.getElementById('amount').value = '';
-        document.getElementById('remark').value = '';
     }
 </script>
 
