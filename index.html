@@ -192,3 +192,68 @@
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Cash Book - Full History & Print</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4361ee; --success: #2ec4b6; --danger: #e71d36; --bg: #f4f7fe; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 950px; margin: auto; }
+        
+        /* Stats Dashboard */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
+        .stat-box h3 { margin: 0; font-size: 13px; color: #888; text-transform: uppercase; }
+        .stat-box p { margin: 10px 0 0; font-size: 24px; font-weight: 600; }
+
+        /* Form Section */
+        .entry-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        label { font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
+        
+        .btn-row { margin-top: 20px; display: flex; gap: 10px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; flex: 1; transition: 0.3s; text-align: center; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-print { background: #000; color: white; }
+
+        /* History Table Section */
+        .history-section { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .history-header { padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 14px; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        
+        .type-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .bg-in { color: var(--success); }
+        .bg-out { color: var(--danger); }
+        
+        /* PRINT STYLES - Eh zaroori hai */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { max-width: 100%; width: 100%; }
+            .history-section { box-shadow: none; border: none; }
+            table { border: 1px solid #000; }
+            th, td { border: 1px solid #ddd; }
+            .stat-box { border: 1px solid #eee; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="no-print" style="text-align: center; color: var(--primary);">My Cash Tracker</h2>
+
+    <div class="dashboard">
+        <div class="stat-box"><h3>Total Cash In</h3><p style="color: var(--success);" id="totalIn">₹0</p></div>
+        <div class="stat-box"><h3>Total Cash Out</h3><p style="color: var(--danger);" id="totalOut">₹0</p></div>
+        <div class="stat-box"><h3>Net Balance</h3><p id="netBalance" style="color: var(--primary);">₹0</p></div>
+    </div>
+
+    <div class="
