@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -97,7 +96,8 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFoLX0uE8igSQ3DeQgN5Xzn2wb2UQljRsexOPy9CfjAEdP-zAuCmF1M-jVD2FkTKsE/exec'; 
+    // APNA NAYA SCRIPT URL YAHAN PASTE KAREIN
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvOqXMUITgWoMYvqi-bnjYoKOJwsBurffeCmX_Uu0yG0fzaS7fC_glsbituXoFI8b8/exec'; 
 
     let globalData = [];
 
@@ -117,7 +117,6 @@
         table.innerHTML = '';
         let totalIn = 0, totalOut = 0;
 
-        // Latest entries at top
         const displayData = [...data].reverse();
 
         displayData.forEach((item) => {
@@ -161,71 +160,4 @@
         try {
             await fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ date, desc, amount, type })
-            });
-
-            setTimeout(() => {
-                document.getElementById('desc').value = '';
-                document.getElementById('amount').value = '';
-                loadData();
-                saveBtn.disabled = false;
-                alert("Entry Cloud par Save ho gayi!");
-            }, 2000);
-        } catch (e) { alert("Network Error!"); saveBtn.disabled = false; }
-    }
-
-    async function deleteEntry(rowIdx) {
-        if(!confirm("Kya aap ise DELETE karna chahte hain? (Backup Deleted_History mein save ho jayega)")) return;
-        
-        document.getElementById('status').style.display = 'block';
-        document.getElementById('status').innerText = "Deleting and Backing up...";
-
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ action: "delete", row: rowIdx })
-            });
-            setTimeout(() => { 
-                loadData(); 
-                alert("Entry Deleted & Moved to Trash!"); 
-            }, 2000);
-        } catch (e) { alert("Delete fail ho gaya!"); }
-    }
-
-    function shareWhatsapp(idx) {
-        const item = globalData.find(d => d.row === idx);
-        const typeTxt = item.type === 'in' ? 'CASH RECEIVED (+)' : 'CASH PAID (-)';
-        const msg = `*SHREE RAM TRADING COMPANY*%0A` +
-                    `--------------------------%0A` +
-                    `*Date:* ${item.date}%0A` +
-                    `*Details:* ${item.desc}%0A` +
-                    `*Status:* ${typeTxt}%0A` +
-                    `*Amount:* ₹${item.amount}%0A` +
-                    `--------------------------%0A` +
-                    `_Generated via Digital Ledger_`;
-        window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-    }
-
-    function printSingle(idx) {
-        const item = globalData.find(d => d.row === idx);
-        document.getElementById('r-date').innerText = "Date: " + item.date;
-        document.getElementById('r-desc').innerText = "Details: " + item.desc;
-        document.getElementById('r-type').innerText = "Status: " + (item.type === 'in' ? 'Money Received' : 'Money Paid');
-        document.getElementById('r-amount').innerText = "₹" + item.amount;
-
-        document.getElementById('main-content').style.display = 'none';
-        document.getElementById('receipt-print').style.display = 'block';
-        window.print();
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('receipt-print').style.display = 'none';
-    }
-
-    // Set Default Date to Today
-    document.getElementById('date').valueAsDate = new Date();
-    loadData();
-</script>
-
-</body>
-</html>
+                body: JSON.stringify({
