@@ -3,6 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Param Shriram Trading - Pro Tracker</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #1a73e8; margin-top: 0; }
+        
+        /* Dashboard Stats */
+        .stats { display: flex; gap: 10px; margin-bottom: 20px; text-align: center; }
+        .stat-box { flex: 1; padding: 15px; border-radius: 10px; color: white; font-weight: bold; }
+        .total-box { background: #1a73e8; }
+        
+        .form-section, .filter-section { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        input, select, button { padding: 12px; margin: 5px 0; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #ddd; font-size: 15px; }
+        button { background: #1a73e8; color: white; border: none; cursor: pointer; transition: 0.2s; font-weight: 600; }
+        button:hover { background: #1557b0; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background: #f1f3f4; color: #555; }
+        .in { color: #28a745; font-weight: bold; }
+        .out { color: #dc3545; font-weight: bold; }
+        
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Param Shriram Trading Co.</h2>
+
+    <div class="stats">
+        <div class="stat-box total-box">
+            <small>Current Cash Balance</small>
+            <div id="mainBalance" style="font-size: 24px;">₹0</div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="grid">
+            <input type="text" id="name" placeholder="Bande da Naam">
+            <input type="number" id="amount" placeholder="Amount (₹)">
+        </div>
+        <div class="grid">
+            <select id="type">
+                <option value="Cash In">Cash In (Kamayi)</option>
+                <option value="Cash Out">Cash Out (Kharcha)</option>
+            </select>
+            <input type="text" id="remark" placeholder="Remark">
+        </div>
+        <button id="saveBtn" onclick="sendData()">Save Transaction</button>
+    </div>
+
+    <div class="filter-section">
+        <div class="grid">
+            <input type="text" id="searchName" placeholder="Naam naal labho..." onkeyup="filterTable()">
+            <button onclick="loadHistory()" style="background: #34a853;">Refresh Data</button>
+        </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // PASTE YOUR URL HERE
+    const scriptURL = '<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Param Shriram Trading - Cash Tracker</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; }
